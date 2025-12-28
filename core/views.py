@@ -28,6 +28,11 @@ ai_detector = pipeline(
 # ---------------- Gemini Client ----------------
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
+# ---------------- HOME ----------------
+def home(request):
+    if request.user.is_authenticated:
+        return redirect('core:dashboard')
+    return redirect('core:login')
 
 # ---------------- DASHBOARD ----------------
 @login_required
@@ -38,6 +43,10 @@ def dashboard(request):
 
 # ---------------- AUTH ----------------
 def register(request):
+    # 🔒 Redirect already logged-in users
+    if request.user.is_authenticated:
+        return redirect('core:dashboard')
+
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
@@ -52,6 +61,9 @@ def register(request):
 
 
 def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('core:dashboard')
+
     if request.method == "POST":
         user = authenticate(
             request,
@@ -71,7 +83,8 @@ def login_view(request):
 @login_required
 def logout_view(request):
     logout(request)
-    return redirect("core:login")
+    request.session.flush()
+    return redirect('core:login')
 
 
 # ---------------- UPLOAD ----------------

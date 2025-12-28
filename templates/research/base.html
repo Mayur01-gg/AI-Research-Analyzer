@@ -107,7 +107,8 @@
 <!-- NAVBAR -->
 <nav class="navbar navbar-expand-lg navbar-dark fixed-top shadow-sm">
     <div class="container">
-        <a class="navbar-brand d-flex align-items-center" href="{% url 'core:dashboard' %}">
+        <a class="navbar-brand d-flex align-items-center"
+            href="{% if user.is_authenticated %}{% url 'core:dashboard' %}{% else %}{% url 'core:login' %}{% endif %}">
             <i class="bi bi-journal-text me-2"></i>
             Research Analyzer
         </a>
