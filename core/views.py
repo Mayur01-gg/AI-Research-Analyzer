@@ -30,8 +30,6 @@ client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 # ---------------- HOME ----------------
 def home(request):
-    if request.user.is_authenticated:
-        return redirect('core:dashboard')
     return redirect('core:login')
 
 # ---------------- DASHBOARD ----------------
@@ -174,32 +172,47 @@ def summarize_research(request, research_id):
 def stream_summary(request, research_id):
     research = Research.objects.get(id=research_id, user=request.user)
 
+    # ✅ STEP 4.1 — read language from URL
+    lang = request.GET.get("lang", "en")
+
+    language_map = {
+        "en": "English",
+        "hi": "Hindi",
+        "mr": "Marathi"
+    }
+
+    target_language = language_map.get(lang, "English")
+
     def generate():
         try:
             with pdfplumber.open(research.file.path) as pdf:
                 text = "\n".join(
-                    filter(None, (p.extract_text() for p in pdf.pages[:3]))
+                    filter(None, (p.extract_text() for p in pdf.pages[:1]))
                 )
 
-            text = text[:3000]
+            text = text[:1800]  # Limit to first 18,000 chars
 
-            prompt = f"""
-Generate a structured academic summary in markdown.
+            pprompt = f"""
+Summarize the following research paper concisely.
+Limit response to essential academic points only.
 
-Include:
-- Title
-- Problem Statement
-- Methodology
-- Key Findings
-- Conclusion
+Respond in {target_language}.
+Use Markdown headings only.
+
+## Title
+## Problem Statement
+## Methodology
+## Key Findings
+## Conclusion
 
 Text:
 {text}
 """
 
+
             response = client.models.generate_content(
                 model="gemini-2.5-flash",
-                contents=prompt
+                contents=pprompt
             )
 
             if not response or not response.text:
