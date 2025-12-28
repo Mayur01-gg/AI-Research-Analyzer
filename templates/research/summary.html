@@ -1,0 +1,241 @@
+{% extends 'research/base.html' %}
+{% load static %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb" class="mt-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="{% url 'core:dashboard' %}">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Summary</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+
+    <!-- PDF PANEL -->
+    <div class="col-12 col-lg-5">
+        <div class="card h-100 shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong class="text-truncate" title="{{ research.title }}">
+                    {{ research.title }}
+                </strong>
+                <a href="{{ research.file.url }}"
+                   class="btn btn-sm btn-outline-primary"
+                   download>
+                    <i class="bi bi-download"></i>
+                </a>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="pdf-controls p-2 d-flex flex-wrap align-items-center gap-1 border-bottom">
+                    <button id="prev-page" class="btn btn-sm btn-outline-secondary">Prev</button>
+                    <button id="next-page" class="btn btn-sm btn-outline-secondary">Next</button>
+                    <button id="zoom-in" class="btn btn-sm btn-outline-secondary">+</button>
+                    <button id="zoom-out" class="btn btn-sm btn-outline-secondary">−</button>
+                    <span id="page-info" class="mx-2 small text-muted"></span>
+                    <button id="fullscreen" class="btn btn-sm btn-outline-secondary ms-auto">
+                        <i class="bi bi-arrows-fullscreen"></i>
+                    </button>
+                </div>
+
+                <div id="pdf-viewer" style="height: 72vh; overflow-y: auto;">
+                    <canvas id="pdf-canvas" class="w-100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUMMARY PANEL -->
+    <div class="col-12 col-lg-7">
+        <div class="card h-100 shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong>AI-Generated Summary</strong>
+
+                <span class="badge
+                    {% if research.ai_probability > 0.7 %}
+                        bg-danger
+                    {% elif research.ai_probability > 0.3 %}
+                        bg-warning text-dark
+                    {% else %}
+                        bg-success
+                    {% endif %}
+                ">
+                    AI Likelihood: {{ research.ai_probability|floatformat:2 }}
+                </span>
+            </div>
+
+            <div class="card-body summary-container position-relative"
+                 style="height: 72vh; overflow-y: auto;">
+
+                <!-- Loading State -->
+                <div id="summary-loading" class="text-center text-muted py-5">
+                    <div class="spinner-border spinner-border-sm mb-2"></div>
+                    <p class="mb-0">Generating structured summary…</p>
+                    <small>This may take a few seconds</small>
+                </div>
+
+                <!-- Summary Output -->
+                <div id="summary"
+                     class="markdown-body d-none"
+                     aria-live="polite">
+                </div>
+
+                <!-- Error State -->
+                <div id="summary-error"
+                     class="alert alert-warning d-none mt-3">
+                    <strong>Summary generation failed.</strong><br>
+                    The document may be too large or the connection was interrupted.
+                    <div class="mt-2">
+                        <button class="btn btn-sm btn-outline-primary"
+                                onclick="location.reload()">
+                            <i class="bi bi-arrow-clockwise"></i> Retry
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Translation Popup -->
+<div id="translation-popup" class="translation-popup"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    /* ---------------- PDF VIEWER ---------------- */
+    const url = "{{ research.file.url|escapejs }}";
+    let pdfDoc = null, currentPage = 1, scale = 1.4, totalPages = 0;
+
+    pdfjsLib.getDocument(url).promise.then(doc => {
+        pdfDoc = doc;
+        totalPages = doc.numPages;
+        renderPage(currentPage);
+    });
+
+    function renderPage(num) {
+        pdfDoc.getPage(num).then(page => {
+            const viewport = page.getViewport({ scale });
+            const canvas = document.getElementById('pdf-canvas');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            page.render({ canvasContext: canvas.getContext('2d'), viewport });
+            document.getElementById('page-info').textContent =
+                `Page ${num} of ${totalPages}`;
+        });
+    }
+
+    document.getElementById('prev-page').onclick = () => {
+        if (currentPage > 1) renderPage(--currentPage);
+    };
+    document.getElementById('next-page').onclick = () => {
+        if (currentPage < totalPages) renderPage(++currentPage);
+    };
+    document.getElementById('zoom-in').onclick = () => {
+        scale += 0.15; renderPage(currentPage);
+    };
+    document.getElementById('zoom-out').onclick = () => {
+        if (scale > 0.6) scale -= 0.15; renderPage(currentPage);
+    };
+    document.getElementById('fullscreen').onclick = () => {
+        document.getElementById('pdf-viewer').requestFullscreen();
+    };
+
+    /* ---------------- SUMMARY STREAM ---------------- */
+    const summaryDiv = document.getElementById('summary');
+    const loadingDiv = document.getElementById('summary-loading');
+    const errorDiv = document.getElementById('summary-error');
+
+    const source = new EventSource("{% url 'core:stream-summary' research.id %}");
+    let buffer = '';
+
+    source.onmessage = (e) => {
+    const data = JSON.parse(e.data);
+
+    // ✅ End of stream
+    if (data.done) {
+        source.close();
+        return;
+    }
+
+    // ❌ Backend error
+    if (data.error) {
+        loadingDiv.classList.add('d-none');
+        errorDiv.classList.remove('d-none');
+        source.close();
+        return;
+    }
+
+    // ✅ Only append when content exists
+    if (data.content) {
+        buffer += data.content;
+        summaryDiv.innerHTML = marked.parse(buffer);
+
+        loadingDiv.classList.add('d-none');
+        summaryDiv.classList.remove('d-none');
+        summaryDiv.scrollTop = summaryDiv.scrollHeight;
+    }
+};
+
+
+    source.onerror = () => {
+        source.close();
+        loadingDiv.classList.add('d-none');
+        if (!buffer.trim()) {
+            errorDiv.classList.remove('d-none');
+        }
+    };
+
+    /* ---------------- TRANSLATION ---------------- */
+    const popup = document.getElementById('translation-popup');
+    let debounce;
+
+    document.addEventListener('mouseup', (e) => {
+        clearTimeout(debounce);
+        debounce = setTimeout(async () => {
+            const text = window.getSelection().toString().trim();
+            if (!text) return;
+
+            try {
+                const res = await fetch("{% url 'core:translate' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token|escapejs }}"
+                    },
+                    body: JSON.stringify({ text })
+                });
+                const data = await res.json();
+                popup.innerHTML = `
+                    ${data.translation}
+                    <button class="btn-close float-end"></button>
+                `;
+                popup.style.display = "block";
+                popup.style.left = `${e.pageX + 15}px`;
+                popup.style.top = `${e.pageY + 15}px`;
+                popup.querySelector('.btn-close').onclick =
+                    () => popup.style.display = "none";
+            } catch {
+                popup.innerHTML = "Translation failed.";
+                popup.style.display = "block";
+            }
+        }, 300);
+    });
+});
+</script>
+
+<style>
+.markdown-body {
+    animation: fadeIn 0.4s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+</style>
+{% endblock %}

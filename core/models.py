@@ -13,5 +13,8 @@ class Research(models.Model):
     ai_probability = models.FloatField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    # ✅ NEW FIELD
+    file_hash = models.CharField(max_length=64, blank=True)
+
     def __str__(self):
         return self.title

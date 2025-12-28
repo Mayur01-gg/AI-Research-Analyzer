@@ -1,0 +1,145 @@
+{% extends 'research/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 85vh;">
+    <div class="col-12 col-sm-10 col-md-6 col-lg-4">
+
+        <!-- Login Card -->
+        <div class="card shadow-lg border-0 rounded-4">
+            <div class="card-body p-4">
+
+                <!-- App Title -->
+                <div class="text-center mb-4">
+                    <div class="mb-2 fs-2 text-primary">
+                        <i class="bi bi-journal-text"></i>
+                    </div>
+                    <h5 class="fw-bold mb-1">WELCOME!</h5>
+                    <p class="text-muted small">
+                        Sign in to continue to <strong>Research Analyzer</strong>
+                    </p>
+                </div>
+
+                <!-- Login Form -->
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <!-- Username -->
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">
+                                <i class="bi bi-person"></i>
+                            </span>
+                            <input type="text"
+                                   name="username"
+                                   class="form-control"
+                                   placeholder="Enter your username"
+                                   required>
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <!-- Password -->
+<div class="mb-3">
+    <label class="form-label small text-muted">Password</label>
+
+    <div class="input-group">
+        <span class="input-group-text bg-light">
+            <i class="bi bi-lock"></i>
+        </span>
+
+        <input type="password"
+               name="password"
+               id="password"
+               class="form-control"
+               placeholder="Enter your password"
+               required>
+
+        <!-- Show / Hide Button -->
+        <button class="btn btn-light border"
+
+                type="button"
+                id="togglePassword">
+            <i class="bi bi-eye"></i>
+        </button>
+    </div>
+</div>
+
+
+                    <!-- Submit -->
+                    <button type="submit"
+                            class="btn btn-primary w-100 py-2 mt-2">
+                        <i class="bi bi-box-arrow-in-right me-1"></i>
+                        Login
+                    </button>
+                </form>
+
+                <!-- Register -->
+                <div class="text-center mt-4 small">
+                    <span class="text-muted">Don’t have an account?</span>
+                    <a href="{% url 'core:register' %}" class="fw-semibold">
+                        Register
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+/* Input focus polish */
+.form-control:focus {
+    box-shadow: none;
+    border-color: var(--primary);
+}
+
+.input-group-text {
+    border-right: 0;
+}
+
+.input-group .form-control {
+    border-left: 0;
+}
+
+#togglePassword {
+    border-left: 0;
+    border-radius: 0 0.375rem 0.375rem 0;
+}
+
+
+#togglePassword:focus {
+    box-shadow: none;
+}
+
+#togglePassword:hover {
+    background-color: #f8f9fa;
+}
+
+
+.input-group-text i,
+#togglePassword i {
+    color: #6c757d; /* same muted tone */
+}
+
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const passwordInput = document.getElementById("password");
+    const toggleBtn = document.getElementById("togglePassword");
+    const icon = toggleBtn.querySelector("i");
+
+    toggleBtn.addEventListener("click", function () {
+        const isPassword = passwordInput.type === "password";
+
+        passwordInput.type = isPassword ? "text" : "password";
+
+        icon.classList.toggle("bi-eye");
+        icon.classList.toggle("bi-eye-slash");
+    });
+});
+</script>
+
+{% endblock %}
