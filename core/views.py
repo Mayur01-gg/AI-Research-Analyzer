@@ -35,7 +35,7 @@ def home(request):
 # ---------------- DASHBOARD ----------------
 @login_required
 def dashboard(request):
-    researches = Research.objects.filter(user=request.user)
+    researches = Research.objects.filter(user=request.user).select_related()
     return render(request, 'research/dashboard.html', {'researches': researches})
 
 
@@ -73,7 +73,7 @@ def login_view(request):
             login(request, user)
             return redirect('core:dashboard')
 
-        messages.error(request, "Invalid credentials")
+        messages.error(request, "Incorrect Username or Password")
 
     return render(request, "research/login.html")
 
@@ -190,9 +190,9 @@ def stream_summary(request, research_id):
                     filter(None, (p.extract_text() for p in pdf.pages[:1]))
                 )
 
-            text = text[:1800]  # Limit to first 18,000 chars
+            text = text[:2000] 
 
-            pprompt = f"""
+            prompt = f"""
 Summarize the following research paper concisely.
 Limit response to essential academic points only.
 
@@ -212,7 +212,7 @@ Text:
 
             response = client.models.generate_content(
                 model="gemini-2.5-flash",
-                contents=pprompt
+                contents=prompt
             )
 
             if not response or not response.text:
