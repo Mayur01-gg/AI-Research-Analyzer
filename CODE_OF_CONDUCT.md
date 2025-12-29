@@ -1,8 +1,8 @@
-# Research Analyzer Code of Conduct
+# AI Research Analyzer Code of Conduct
 
 ## Our Commitment
 
-The **Research Analyzer** project is committed to fostering an open, inclusive,
+The **AI Research Analyzer** project is committed to fostering an open, inclusive,
 and respectful community. We aim to provide a harassment-free experience for
 everyone involved, regardless of age, body size, disability, ethnicity, gender
 identity and expression, level of experience, education, socioeconomic status,
