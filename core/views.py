@@ -204,8 +204,8 @@ Respond in {target_language}.
 Use Markdown headings only.
 
 ## Title
-## Problem Statement
 ## Authors
+## Problem Statement
 ## Methodology
 ## Key Findings
 ## Conclusion
