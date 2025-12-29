@@ -1,6 +1,6 @@
-# Contributing to Research Analyzer
+# Contributing to AI Research Analyzer
 
-Thank you for your interest in contributing to **Research Analyzer**!
+Thank you for your interest in contributing to **AI Research Analyzer**!
 This project welcomes contributions from developers, researchers, and
 enthusiasts who are interested in building scalable, AI-driven research
 analysis tools.
