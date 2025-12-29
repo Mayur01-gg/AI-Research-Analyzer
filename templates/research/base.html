@@ -29,6 +29,7 @@
         --text-main: #004cff;
         --text-muted: #64748b;
         --primary-dark: #1e40af;
+        --from: #292a2c;
         }
 
         .btn-primary {
@@ -137,6 +138,8 @@
     </li>
     {% endif %}
 
+    
+
     <!-- Logout -->
    <li class="nav-item ms-2">
     <a href="{% url 'core:logout' %}"
@@ -144,6 +147,7 @@
         Logout
     </a>
 </li>
+
 
 
 {% else %}

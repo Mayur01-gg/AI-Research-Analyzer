@@ -27,6 +27,11 @@
                    download>
                     <i class="bi bi-download"></i>
                 </a>
+                <a href="{% url 'core:pdf-to-word' research.id %}"
+                class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-file-earmark-word"></i> Download as Word
+                </a>
+
             </div>
 
             <div class="card-body p-0">
@@ -37,7 +42,7 @@
                     <button id="zoom-out" class="btn btn-sm btn-outline-secondary">−</button>
                     <span id="page-info" class="mx-2 small text-muted"></span>
                     <button id="fullscreen" class="btn btn-sm btn-outline-secondary ms-auto">
-                        <i class="bi bi-arrows-fullscreen"></i>
+                        <i class="bi bi-arrows-angle-expand"></i>
                     </button>
                 </div>
 

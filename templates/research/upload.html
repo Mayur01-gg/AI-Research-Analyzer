@@ -56,10 +56,12 @@
     Choose PDF File
 </button>
 
-<p id="fileName"
-   class="small text-muted mt-2 mb-0">
-    No file selected
-</p>
+<div id="fileName"
+     class="file-selected mt-3 d-none">
+    <i class="bi bi-check-circle-fill me-2"></i>
+    <span id="fileNameText"></span>
+</div>
+
 
                         </div>
                     </div>
@@ -89,7 +91,7 @@ function handleFile(input) {
     const fileName = document.getElementById("fileName");
 
     if (!file) {
-        fileName.textContent = "No file selected";
+        fileName.classList.add("d-none");
         return;
     }
 
@@ -107,7 +109,9 @@ function handleFile(input) {
         return;
     }
 
-    fileName.textContent = `Selected: ${file.name}`;
+    fileName.classList.remove("d-none");
+    document.getElementById("fileNameText").textContent = file.name;
+
 }
 </script>
 
@@ -152,6 +156,42 @@ input[type="file"] {
 /* Cancel should feel secondary */
 .btn-outline-secondary {
     opacity: 0.9;
+}
+
+/* Selected file highlight */
+.file-selected {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #eef2ff; /* soft indigo */
+    color: var(--primary);
+
+    border: 1px solid #c7d2fe;
+    border-radius: 10px;
+
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    font-weight: 500;
+
+    animation: fadeSlideIn 0.25s ease-out;
+}
+
+.file-selected i {
+    color: #22c55e; /* success green */
+    font-size: 1rem;
+}
+
+/* Subtle entrance animation */
+@keyframes fadeSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 </style>
 

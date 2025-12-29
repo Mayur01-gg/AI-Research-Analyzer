@@ -19,4 +19,6 @@ urlpatterns = [
     path('summarize/<int:research_id>/', views.summarize_research, name='summarize'),
     path('summarize/<int:research_id>/stream/', views.stream_summary, name='stream-summary'),
     path('translate/', views.translate_text, name='translate'),
+    path("pdf-to-word/<int:research_id>/", views.pdf_to_word, name="pdf-to-word"),
+
 ]

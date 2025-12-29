@@ -3,13 +3,14 @@ import json
 import hashlib
 import pdfplumber
 from google import genai
+from docx import Document
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm
-from django.http import JsonResponse, StreamingHttpResponse
+from django.http import JsonResponse, StreamingHttpResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import Research
@@ -73,9 +74,12 @@ def login_view(request):
             login(request, user)
             return redirect('core:dashboard')
 
-        messages.error(request, "Incorrect Username or Password")
+        return render(request, "research/login.html", {
+            "error": "Incorrect username or password"
+        })
 
     return render(request, "research/login.html")
+
 
 
 @login_required
@@ -201,6 +205,7 @@ Use Markdown headings only.
 
 ## Title
 ## Problem Statement
+## Authors
 ## Methodology
 ## Key Findings
 ## Conclusion
@@ -234,6 +239,30 @@ Text:
         content_type="text/event-stream",
         headers={"Cache-Control": "no-cache"},
     )
+
+@login_required
+def pdf_to_word(request, research_id):
+    research = Research.objects.get(id=research_id, user=request.user)
+
+    doc = Document()
+    doc.add_heading(research.title or "Research Paper", level=1)
+
+    with pdfplumber.open(research.file.path) as pdf:
+        for page in pdf.pages:
+            text = page.extract_text()
+            if text:
+                for line in text.split("\n"):
+                    doc.add_paragraph(line)
+
+    filename = os.path.splitext(os.path.basename(research.file.name))[0]
+
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    )
+    response["Content-Disposition"] = f'attachment; filename="{filename}.docx"'
+
+    doc.save(response)
+    return response
 
 
 # ---------------- TRANSLATION ----------------

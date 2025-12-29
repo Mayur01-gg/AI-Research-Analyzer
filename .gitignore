@@ -173,3 +173,7 @@ media/
 # VS Code
 .vscode/
 sample.py
+
+# Ignore uploaded files
+media/
+
