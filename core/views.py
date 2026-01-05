@@ -4,6 +4,9 @@ import hashlib
 import pdfplumber
 from google import genai
 from docx import Document
+from pdf2docx import Converter
+from django.http import FileResponse
+import tempfile
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
@@ -244,26 +247,18 @@ Text:
 def pdf_to_word(request, research_id):
     research = Research.objects.get(id=research_id, user=request.user)
 
-    doc = Document()
-    doc.add_heading(research.title or "Research Paper", level=1)
+    pdf_path = research.file.path
+    tmp_docx = tempfile.NamedTemporaryFile(delete=False, suffix=".docx")
 
-    with pdfplumber.open(research.file.path) as pdf:
-        for page in pdf.pages:
-            text = page.extract_text()
-            if text:
-                for line in text.split("\n"):
-                    doc.add_paragraph(line)
+    cv = Converter(pdf_path)
+    cv.convert(tmp_docx.name)
+    cv.close()
 
-    filename = os.path.splitext(os.path.basename(research.file.name))[0]
-
-    response = HttpResponse(
-        content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    return FileResponse(
+        open(tmp_docx.name, "rb"),
+        as_attachment=True,
+        filename=f"{research.title or 'research'}.docx"
     )
-    response["Content-Disposition"] = f'attachment; filename="{filename}.docx"'
-
-    doc.save(response)
-    return response
-
 
 # ---------------- TRANSLATION ----------------
 @csrf_exempt
