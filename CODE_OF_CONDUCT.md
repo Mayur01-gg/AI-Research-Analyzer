@@ -96,4 +96,3 @@ https://www.contributor-covenant.org/version/2/1/code_of_conduct/
 
 ---
 
-*Last updated: March 2025*
