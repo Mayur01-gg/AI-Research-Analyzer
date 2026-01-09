@@ -37,7 +37,7 @@ Contributions are welcome in the following areas:
    - Fork the repository to your own GitHub account.
    - Clone your fork locally:
      ```bash
-     git clone https://github.com/<your-username>/AI-Research-Analyzer.git
+     git clone https://github.com/Mayur01-gg/AI-Research-Analyzer.git
      cd AI-Research-Analyzer
      ```
 
