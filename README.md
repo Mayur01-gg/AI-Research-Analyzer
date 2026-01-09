@@ -181,7 +181,7 @@ Contributions are welcome 🚀
 
 ## 👤 Author
 
-**Mayur Chalke**
+**Mayur Chalke**  
 AI & Data Science Enthusiast  
 Backend & AI Application Developer  
 
