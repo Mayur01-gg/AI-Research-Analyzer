@@ -84,7 +84,7 @@ AI-RESEARCH-ANALYZER/
 
 ### 1️⃣ Clone the Repository
 ```bash
-git clone https://github.com/your-username/AI-Research-Analyzer.git
+git clone https://github.com/Mayur01-gg/AI-Research-Analyzer.git
 cd AI-Research-Analyzer
 ````
 
@@ -182,8 +182,8 @@ Contributions are welcome 🚀
 ## 👤 Author
 
 **Mayur Chalke**
-AI & Data Science Enthusiast
-Backend & AI Application Developer
+AI & Data Science Enthusiast  
+Backend & AI Application Developer  
 
 ---
 
