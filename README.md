@@ -1,4 +1,4 @@
-# 🧠 AI Research Analyzer
+# AI Research Analyzer
 
 AI Research Analyzer is a backend-focused application designed to analyze,
 process, and summarize research documents using modern Python and AI-based
