@@ -41,7 +41,7 @@ Unacceptable behaviors include, but are not limited to:
 This Code of Conduct applies to all project-related spaces, including:
 - GitHub repositories (issues, pull requests, discussions, code reviews).
 - Project communication channels (email or future platforms).
-- Public spaces where an individual represents **Research Analyzer**.
+- Public spaces where an individual represents **AI Research Analyzer**.
 
 ---
 
