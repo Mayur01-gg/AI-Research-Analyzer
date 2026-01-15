@@ -2,271 +2,402 @@
 {% load static %}
 
 {% block breadcrumbs %}
-<nav aria-label="breadcrumb" class="mt-3">
+<nav aria-label="breadcrumb" class="mt-3 animate-appear">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-            <a href="{% url 'core:dashboard' %}">Dashboard</a>
-        </li>
+        <li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}">Dashboard</a></li>
         <li class="breadcrumb-item active">Summary</li>
     </ol>
 </nav>
 {% endblock %}
 
 {% block content %}
-<div class="row g-4">
+<div class="row g-4 mt-1">
 
-    <!-- PDF PANEL -->
-    <div class="col-12 col-lg-5">
-        <div class="card h-100 shadow-sm">
-         <div class="card-header d-flex align-items-center gap-3">
+    <div class="col-12 col-lg-6 animate-slide-left">
+        <div class="summary-pane h-100 shadow-sm">
+            <div class="pane-header d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center overflow-hidden me-2">
+                    <i class="bi bi-file-earmark-pdf text-danger me-2 fs-5"></i>
+                    <span class="text-truncate fw-semibold" style="max-width: 250px;" title="{{ research.title }}">
+                        {{ research.title }}
+                    </span>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ research.file.url }}" class="btn btn-icon-sm" download title="Download PDF">
+                        <i class="bi bi-download"></i>
+                    </a>
+                    <a href="{% url 'core:pdf-to-word' research.id %}" class="btn btn-icon-sm" title="Convert to Word">
+                        <i class="bi bi-file-earmark-word"></i>
+                    </a>
+                </div>
+            </div>
 
-    <!-- Title (truncate safely) -->
-    <strong class="text-truncate flex-grow-1"
-            style="max-width: 65%;"
-            title="{{ research.title }}">
-        {{ research.title }}
-    </strong>
-
-    <!-- Buttons (fixed position) -->
-    <div class="d-flex align-items-center gap-2 flex-shrink-0">
-        <!-- PDF -->
-        <a href="{{ research.file.url }}"
-           class="btn btn-sm btn-outline-primary px-3"
-           download
-           title="Download PDF">
-            <i class="bi bi-download"></i>
-        </a>
-
-        <!-- Word -->
-        <a href="{% url 'core:pdf-to-word' research.id %}"
-           class="btn btn-sm btn-outline-primary px-3"
-           title="Download as Word">
-            <i class="bi bi-file-earmark-word me-1"></i>
-            Download Word
-        </a>
-    </div>
-</div>
-
-
-
-
-            <div class="card-body p-0">
-                <div class="pdf-controls p-2 d-flex flex-wrap align-items-center gap-1 border-bottom">
-                    <button id="prev-page" class="btn btn-sm btn-outline-secondary">Prev</button>
-                    <button id="next-page" class="btn btn-sm btn-outline-secondary">Next</button>
-                    <button id="zoom-in" class="btn btn-sm btn-outline-secondary">+</button>
-                    <button id="zoom-out" class="btn btn-sm btn-outline-secondary">−</button>
-                    <span id="page-info" class="mx-2 small text-muted"></span>
-                    <button id="fullscreen" class="btn btn-sm btn-outline-secondary ms-auto">
-                        <i class="bi bi-arrows-angle-expand"></i>
-                    </button>
+            <div class="card-body p-0 bg-dark-subtle">
+                <div class="pdf-toolbar d-flex align-items-center justify-content-center gap-3 p-2 border-bottom">
+                    <button id="prev-page" class="btn btn-nav-pdf"><i class="bi bi-chevron-left"></i></button>
+                    <span id="page-info" class="small fw-medium"></span>
+                    <button id="next-page" class="btn btn-nav-pdf"><i class="bi bi-chevron-right"></i></button>
+                    <div class="v-divider"></div>
+                    <button id="zoom-out" class="btn btn-nav-pdf"><i class="bi bi-dash"></i></button>
+                    <button id="zoom-in" class="btn btn-nav-pdf"><i class="bi bi-plus"></i></button>
+                    <button id="fullscreen" class="btn btn-nav-pdf ms-auto"><i
+                            class="bi bi-arrows-angle-expand"></i></button>
                 </div>
 
-                <div id="pdf-viewer" style="height: 72vh; overflow-y: auto;">
-                    <canvas id="pdf-canvas" class="w-100"></canvas>
+                <div id="pdf-viewer" class="pdf-content-area">
+                    <canvas id="pdf-canvas" class="mx-auto shadow-lg my-3 d-block"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- SUMMARY PANEL -->
-    <div class="col-12 col-lg-7">
-        <div class="card h-100 shadow-sm">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <strong>AI-Generated Summary</strong>
+    <div class="col-12 col-lg-6 animate-slide-right">
+        <div class="summary-pane h-100 shadow-sm border-primary-subtle">
+            <div class="pane-header d-flex justify-content-between align-items-center border-primary-subtle">
+                <div class="d-flex align-items-center">
+                    <div class="ai-sparkle me-2">
+                        <i class="bi bi-stars text-primary"></i>
+                    </div>
+                    <span class="fw-bold">AI Analysis Summary</span>
+                </div>
 
-                <span class="badge
-                    {% if research.ai_probability > 0.7 %}
-                        bg-danger
-                    {% elif research.ai_probability > 0.3 %}
-                        bg-warning text-dark
-                    {% else %}
-                        bg-success
-                    {% endif %}
-                ">
+                <div class="ai-confidence-badge" data-bs-toggle="tooltip"
+                    title="Likelihood of the text being generated by AI">
+                    <span
+                        class="dot {% if research.ai_probability > 0.7 %}bg-danger{% elif research.ai_probability > 0.3 %}bg-warning{% else %}bg-success{% endif %}"></span>
                     AI Likelihood: {{ research.ai_probability|floatformat:2 }}
-                </span>
+                </div>
             </div>
 
-            <div class="card-body summary-container position-relative"
-                 style="height: 72vh; overflow-y: auto;">
-
-                <!-- Loading State -->
-                <div id="summary-loading" class="text-center text-muted py-5">
-                    <div class="spinner-border spinner-border-sm mb-2"></div>
-                    <p class="mb-0">Generating structured summary…</p>
-                    <small>This may take a few seconds</small>
+            <div class="card-body summary-scroll-area position-relative">
+                <div id="summary-loading" class="text-center py-5">
+                    <div class="loader-ripple mx-auto mb-3">
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <p class="mb-0 fw-medium text-primary">Synthesizing document insights...</p>
+                    <small class="text-muted">This may take a few seconds</small>
                 </div>
 
-                <!-- Summary Output -->
-                <div id="summary"
-                     class="markdown-body d-none"
-                     aria-live="polite">
-                </div>
+                <div id="summary" class="markdown-body d-none"></div>
 
-                <!-- Error State -->
-                <div id="summary-error"
-                     class="alert alert-warning d-none mt-3">
-                    <strong>Summary generation failed.</strong><br>
-                    The document may be too large or the connection was interrupted.
-                    <div class="mt-2">
-                        <button class="btn btn-sm btn-outline-primary"
-                                onclick="location.reload()">
-                            <i class="bi bi-arrow-clockwise"></i> Retry
-                        </button>
+                <div id="summary-error" class="alert alert-soft-warning d-none animate-bounce">
+                    <div class="d-flex">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <div>
+                            <strong>Analysis Interrupted</strong>
+                            <p class="small mb-2">The AI could not complete the summary. Please retry.</p>
+                            <button class="btn btn-sm btn-outline-primary" onclick="location.reload()">Retry
+                                Now</button>
+                        </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
 </div>
 
-<!-- Translation Popup -->
-<div id="translation-popup" class="translation-popup"></div>
+<style>
+    /* Pane Architecture */
+    .summary-pane {
+        background: var(--bg-card);
+        border-radius: 20px;
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .pane-header {
+        background: var(--bg-body);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    /* PDF Specifics */
+    .pdf-toolbar {
+        background: var(--bg-card);
+    }
+
+    .pdf-content-area {
+        height: 75vh;
+        overflow-y: auto;
+        background: var(--bg-body);
+        scrollbar-width: thin;
+    }
+
+    .btn-nav-pdf {
+        border: none;
+        background: transparent;
+        color: var(--text-muted);
+        border-radius: 8px;
+        padding: 4px 10px;
+        transition: all 0.2s;
+    }
+
+    .btn-nav-pdf:hover {
+        background: var(--primary-soft);
+        color: var(--primary);
+    }
+
+    /* Summary Specifics */
+    .summary-scroll-area {
+        height: 75vh;
+        overflow-y: auto;
+        padding: 2rem !important;
+        scroll-behavior: smooth;
+    }
+
+    .ai-confidence-badge {
+        background: var(--primary-soft);
+        color: var(--text-main);
+        padding: 6px 12px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    #summary {
+        background-color: var(--bg-card) !important;
+        color: var(--text-main) !important;
+    }
+
+    .markdown-body {
+        background-color: var(--bg-card) !important;
+        color: var(--text-main) !important;
+    }
+
+    .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+
+    /* --- ANIMATIONS --- */
+    .animate-slide-left {
+        animation: slideLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .animate-slide-right {
+        animation: slideRight 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+        animation-delay: 0.1s;
+    }
+
+    @keyframes slideLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-40px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes slideRight {
+        from {
+            opacity: 0;
+            transform: translateX(40px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* AI Loading Ripple */
+    .loader-ripple {
+        display: inline-block;
+        position: relative;
+        width: 60px;
+        height: 60px;
+    }
+
+    .loader-ripple div {
+        position: absolute;
+        border: 4px solid var(--primary);
+        opacity: 1;
+        border-radius: 50%;
+        animation: loader-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+    }
+
+    .loader-ripple div:nth-child(2) {
+        animation-delay: -0.5s;
+    }
+
+    @keyframes loader-ripple {
+        0% {
+            top: 28px;
+            left: 28px;
+            width: 0;
+            height: 0;
+            opacity: 1;
+        }
+
+        100% {
+            top: -1px;
+            left: -1px;
+            width: 58px;
+            height: 58px;
+            opacity: 0;
+        }
+    }
+
+    /* Markdown Streaming Animation */
+    #summary p {
+        animation: text-reveal 0.5s ease-out forwards;
+    }
+
+    @keyframes text-reveal {
+        from {
+            opacity: 0;
+            transform: translateY(5px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener("DOMContentLoaded", () => {
+        // --- 1. PDF VIEWER LOGIC ---
+        const url = "{{ research.file.url }}";
+        const canvas = document.getElementById('pdf-canvas');
+        const ctx = canvas.getContext('2d');
 
-    /* ---------------- PDF VIEWER ---------------- */
-    const url = "{{ research.file.url|escapejs }}";
-    let pdfDoc = null, currentPage = 1, scale = 1.4, totalPages = 0;
+        let pdfDoc = null;
+        let pageNum = 1;
+        let pageRendering = false;
+        let pageNumPending = null;
+        let scale = 1.0;
 
-    pdfjsLib.getDocument(url).promise.then(doc => {
-        pdfDoc = doc;
-        totalPages = doc.numPages;
-        renderPage(currentPage);
-    });
+        // Initialize PDF.js Worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-    function renderPage(num) {
-        pdfDoc.getPage(num).then(page => {
-            const viewport = page.getViewport({ scale });
-            const canvas = document.getElementById('pdf-canvas');
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
-            page.render({ canvasContext: canvas.getContext('2d'), viewport });
-            document.getElementById('page-info').textContent =
-                `Page ${num} of ${totalPages}`;
+        // Load Document
+        pdfjsLib.getDocument(url).promise.then(pdf => {
+            pdfDoc = pdf;
+            document.getElementById('page-info').textContent = `Page ${pageNum} of ${pdfDoc.numPages}`;
+            renderPage(pageNum);
+        }).catch(err => {
+            console.error('Error loading PDF:', err);
         });
-    }
 
-    document.getElementById('prev-page').onclick = () => {
-        if (currentPage > 1) renderPage(--currentPage);
-    };
-    document.getElementById('next-page').onclick = () => {
-        if (currentPage < totalPages) renderPage(++currentPage);
-    };
-    document.getElementById('zoom-in').onclick = () => {
-        scale += 0.15; renderPage(currentPage);
-    };
-    document.getElementById('zoom-out').onclick = () => {
-        if (scale > 0.6) scale -= 0.15; renderPage(currentPage);
-    };
-    document.getElementById('fullscreen').onclick = () => {
-        document.getElementById('pdf-viewer').requestFullscreen();
-    };
+        function renderPage(num) {
+            pageRendering = true;
 
-    /* ---------------- SUMMARY STREAM ---------------- */
-    const summaryDiv = document.getElementById('summary');
-    const loadingDiv = document.getElementById('summary-loading');
-    const errorDiv = document.getElementById('summary-error');
+            pdfDoc.getPage(num).then(page => {
+                const viewport = page.getViewport({ scale: scale });
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
 
-    const source = new EventSource("{% url 'core:stream-summary' research.id %}");
-    let buffer = '';
+                const renderContext = {
+                    canvasContext: ctx,
+                    viewport: viewport
+                };
 
-    source.onmessage = (e) => {
-    const data = JSON.parse(e.data);
+                const renderTask = page.render(renderContext);
 
-    // ✅ End of stream
-    if (data.done) {
-        source.close();
-        return;
-    }
-
-    // ❌ Backend error
-    if (data.error) {
-        loadingDiv.classList.add('d-none');
-        errorDiv.classList.remove('d-none');
-        source.close();
-        return;
-    }
-
-    // ✅ Only append when content exists
-    if (data.content) {
-        buffer += data.content;
-        summaryDiv.innerHTML = marked.parse(buffer);
-
-        loadingDiv.classList.add('d-none');
-        summaryDiv.classList.remove('d-none');
-        summaryDiv.scrollTop = summaryDiv.scrollHeight;
-    }
-};
-
-
-    source.onerror = () => {
-        source.close();
-        loadingDiv.classList.add('d-none');
-        if (!buffer.trim()) {
-            errorDiv.classList.remove('d-none');
-        }
-    };
-
-    /* ---------------- TRANSLATION ---------------- */
-    const popup = document.getElementById('translation-popup');
-    let debounce;
-
-    document.addEventListener('mouseup', (e) => {
-        clearTimeout(debounce);
-        debounce = setTimeout(async () => {
-            const text = window.getSelection().toString().trim();
-            if (!text) return;
-
-            try {
-                const res = await fetch("{% url 'core:translate' %}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRFToken": "{{ csrf_token|escapejs }}"
-                    },
-                    body: JSON.stringify({ text })
+                renderTask.promise.then(() => {
+                    pageRendering = false;
+                    if (pageNumPending !== null) {
+                        renderPage(pageNumPending);
+                        pageNumPending = null;
+                    }
                 });
-                const data = await res.json();
-                popup.innerHTML = `
-                    ${data.translation}
-                    <button class="btn-close float-end"></button>
-                `;
-                popup.style.display = "block";
-                popup.style.left = `${e.pageX + 15}px`;
-                popup.style.top = `${e.pageY + 15}px`;
-                popup.querySelector('.btn-close').onclick =
-                    () => popup.style.display = "none";
-            } catch {
-                popup.innerHTML = "Translation failed.";
-                popup.style.display = "block";
+            });
+
+            document.getElementById('page-info').textContent = `Page ${num} of ${pdfDoc.numPages}`;
+        }
+
+        function queueRenderPage(num) {
+            if (pageRendering) {
+                pageNumPending = num;
+            } else {
+                renderPage(num);
             }
-        }, 300);
+        }
+
+        function onPrevPage() {
+            if (pageNum <= 1) return;
+            pageNum--;
+            queueRenderPage(pageNum);
+        }
+
+        function onNextPage() {
+            if (pageNum >= pdfDoc.numPages) return;
+            pageNum++;
+            queueRenderPage(pageNum);
+        }
+
+        // Event Listeners for PDF
+        document.getElementById('prev-page').addEventListener('click', onPrevPage);
+        document.getElementById('next-page').addEventListener('click', onNextPage);
+
+        document.getElementById('zoom-in').addEventListener('click', () => {
+            scale += 0.2;
+            renderPage(pageNum);
+        });
+
+        document.getElementById('zoom-out').addEventListener('click', () => {
+            if (scale <= 0.4) return;
+            scale -= 0.2;
+            renderPage(pageNum);
+        });
+
+        // --- 2. STREAMING SUMMARY LOGIC ---
+        const summaryElement = document.getElementById('summary');
+        const loadingElement = document.getElementById('summary-loading');
+        const errorElement = document.getElementById('summary-error');
+        let accumulatedText = "";
+
+        // Establish SSE Connection
+        const streamSource = new EventSource("{% url 'core:stream-summary' research.id %}");
+
+        streamSource.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+
+            // Hide loading indicator on first data
+            if (loadingElement.style.display !== 'none') {
+                loadingElement.style.display = 'none';
+                summaryElement.classList.remove('d-none');
+            }
+
+            if (data.content) {
+                accumulatedText += data.content;
+                // Render real-time markdown
+                summaryElement.innerHTML = marked.parse(accumulatedText);
+            }
+
+            if (data.done) {
+                streamSource.close();
+            }
+
+            if (data.error) {
+                streamSource.close();
+                summaryElement.classList.add('d-none');
+                loadingElement.classList.add('d-none');
+                errorElement.classList.remove('d-none');
+                console.error("Stream Error:", data.error);
+            }
+        };
+
+        streamSource.onerror = function () {
+            console.error("Stream connection failed.");
+            streamSource.close();
+            if (accumulatedText.length === 0) {
+                loadingElement.classList.add('d-none');
+                errorElement.classList.remove('d-none');
+            }
+        };
     });
-});
 </script>
-
-<style>
-.markdown-body {
-    animation: fadeIn 0.4s ease-in;
-    -ms-text-size-adjust: 100%;
-    -webkit-text-size-adjust: 100%;
-    margin: 0;
-    color: #000000;
-    background-color: #fbfdff;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-    font-size: 16px;
-    line-height: 1.5;
-    word-wrap: break-word;
-}
-
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-</style>
 {% endblock %}
