@@ -16,182 +16,219 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
     <!-- Markdown Styling -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css"
+        rel="stylesheet">
 
-    <style>
+    <head>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+            rel="stylesheet">
 
-        :root {
-        --primary: #004cff;       
-        --success: #16a34a;     
-        --warning: #f59e0b;    
-        --danger: #ee0b0b;  
-        --bg-light: #f8fafc;
-        --text-main: #004cff;
-        --text-muted: #64748b;
-        --primary-dark: #1e40af;
-        --from: #292a2c;
-        }
+        <style>
+            :root {
+                /* Core Colors */
+                --primary: #4f46e5;
+                --primary-soft: #eef2ff;
+                --secondary: #64748b;
 
-        .btn-primary {
-            border-color: var(--primary);
-            background-color: var(--primary);
-        }
-        
-        .btn-outline-primary {
-        color: var(--primary);
-        border-color: var(--primary);
-        }
+                /* Theme Variables - Light (Default) */
+                --bg-body: #f8fafc;
+                --bg-card: #ffffff;
+                --bg-nav: rgba(255, 255, 255, 0.8);
+                --text-main: #0f172a;
+                --text-muted: #64748b;
+                --border-color: #e2e8f0;
+                --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+            }
 
-        .btn-outline-primary:hover {
-        background-color: var(--primary);
-        color: #fff;
-        }
+            [data-theme="dark"] {
+                /* Theme Variables - Dark */
+                --primary-soft: #1e1b4b;
+                /* Darker soft primary */
+                --bg-body: #0f172a;
+                --bg-card: #1e293b;
+                --bg-nav: rgba(15, 23, 42, 0.8);
+                --text-main: #f8fafc;
+                --text-muted: #94a3b8;
+                --border-color: #334155;
+                --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+            }
 
-        .bg-success {
-        background-color: var(--success) !important;
-        }
+            body {
+                font-family: 'Inter', sans-serif;
+                background-color: var(--bg-body);
+                color: var(--text-main);
+                padding-bottom: 80px;
+                transition: background-color 0.3s ease, color 0.3s ease;
+            }
 
-        .bg-warning {
-        background-color: var(--warning) !important;
-        color: #000 !important;
-        }
+            /* Modern Glass Navbar */
+            .navbar {
+                background: var(--bg-nav) !important;
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border-bottom: 1px solid var(--border-color);
+                transition: all 0.3s ease;
+            }
 
-        .bg-danger {
-        background-color: var(--danger) !important;
-        }
+            .navbar-brand {
+                font-weight: 700;
+                color: var(--text-main) !important;
+                letter-spacing: -0.5px;
+            }
 
-        .navbar {
-        background-color: var(--text-main);
-        }
+            .navbar-brand i {
+                background: linear-gradient(45deg, var(--primary), #818cf8);
+                background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
 
-        body {
-    font-family: 'Roboto', sans-serif;
-    background-color: var(--bg-light);
-    color: var(--text-main);
-}
+            .nav-link {
+                color: var(--text-muted) !important;
+                font-weight: 500;
+                font-size: 0.9rem;
+            }
 
-.navbar {
-    background-color: var(--text-main);
-}
+            .nav-link:hover {
+                color: var(--primary) !important;
+            }
 
+            /* Sleek Buttons */
+            .btn-primary {
+                background-color: var(--primary);
+                border: none;
+                padding: 0.6rem 1.5rem;
+                border-radius: 10px;
+                font-weight: 600;
+                box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.3);
+                transition: all 0.2s ease;
+            }
 
-        .navbar-brand {
-            font-weight: 600;
-        }
+            .btn-primary:hover {
+                background-color: #4338ca;
+                transform: translateY(-1px);
+                box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+            }
 
-        .container-main {
-            padding-top: 90px;
-            padding-bottom: 40px;
-        }
+            .btn-outline-primary {
+                border: 1px solid var(--primary);
+                color: var(--primary);
+                border-radius: 10px;
+                font-weight: 500;
+            }
 
-        .breadcrumb {
-            background: transparent;
-            padding-left: 0;
-        }
+            /* Global Card Style */
+            .card {
+                background-color: var(--bg-card);
+                border: 1px solid var(--border-color);
+                border-radius: 16px;
+                box-shadow: var(--card-shadow);
+                transition: transform 0.2s ease, background-color 0.3s ease, border-color 0.3s ease;
+            }
 
-        .translation-popup {
-            position: fixed;
-            background: #fff;
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            padding: 8px 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 1050;
-            max-width: 320px;
-            display: none;
-            font-size: 14px;
-        }
-    </style>
-</head>
+            .text-dark {
+                color: var(--text-main) !important;
+            }
 
-<body>
+            .text-secondary,
+            .text-muted {
+                color: var(--text-muted) !important;
+            }
 
-<!-- NAVBAR -->
-<nav class="navbar navbar-expand-lg navbar-dark fixed-top shadow-sm">
-    <div class="container">
-        <a class="navbar-brand d-flex align-items-center"
-            href="{% if user.is_authenticated %}{% url 'core:dashboard' %}{% else %}{% url 'core:login' %}{% endif %}">
-            <i class="bi bi-journal-text me-2"></i>
-            Research Analyzer
-        </a>
+            .bg-light {
+                background-color: var(--primary-soft) !important;
+            }
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+            .container-main {
+                margin-top: 100px;
+            }
 
-        <div class="collapse navbar-collapse" id="navbarNav">
-           <ul class="navbar-nav ms-auto align-items-lg-center">
+            /* Theme Toggle Button */
+            .theme-toggle {
+                cursor: pointer;
+                padding: 8px;
+                border-radius: 50%;
+                transition: background-color 0.2s;
+                color: var(--text-muted);
+            }
 
-{% if user.is_authenticated %}
-    <!-- Username -->
-    <li class="nav-item me-3 text-light small">
-        Hi, {{ user.username }}
-    </li>
+            .theme-toggle:hover {
+                background-color: var(--primary-soft);
+                color: var(--primary);
+            }
+        </style>
+    </head>
 
-    <!-- Hide Dashboard button ON dashboard page -->
-    {% if request.resolver_match.url_name != 'dashboard' and request.resolver_match.url_name != 'summarize' and request.resolver_match.url_name != 'upload' %}
+    <nav class="navbar navbar-expand-lg fixed-top px-3">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <i class="bi bi-intersect me-2 fs-4"></i>
+                <span>Research<span class="fw-light">AI</span></span>
+            </a>
 
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'core:dashboard' %}">
-            Dashboard
-        </a>
-    </li>
-    {% endif %}
+            <div class="ms-auto d-flex align-items-center gap-3">
+                <div class="theme-toggle" id="theme-toggle" title="Toggle Theme">
+                    <i class="bi bi-moon-stars fs-5" id="theme-icon"></i>
+                </div>
 
-    
-
-    <!-- Logout -->
-   <li class="nav-item ms-2">
-    <a href="{% url 'core:logout' %}"
-       class="btn btn-light btn-sm px-3 fw-semibold text-primary">
-        Logout
-    </a>
-</li>
-
-
-
-{% else %}
-
-    <!-- Hide Login on login page -->
-    {% if request.resolver_match.url_name != 'login' and request.resolver_match.url_name != 'register' %}
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'core:login' %}">Login</a>
-    </li>
-    {% endif %}
-
-    <!-- Hide Register on register page -->
-    {% if request.resolver_match.url_name != 'register' and request.resolver_match.url_name != 'login' %}
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'core:register' %}">Register</a>
-    </li>
-    {% endif %}
-
-{% endif %}
-
-</ul>
-
+                {% if user.is_authenticated %}
+                <span class="text-muted small d-none d-md-block">Account: <strong>{{ user.username }}</strong></span>
+                <a href="{% url 'core:logout' %}" class="btn btn-outline-primary btn-sm px-4">Logout</a>
+                {% else %}
+                <a href="{% url 'core:login' %}" class="nav-link">Login</a>
+                {% endif %}
+            </div>
         </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <div class="container container-main">
+
+        {% block breadcrumbs %}{% endblock %}
+
+        {% block content %}{% endblock %}
+
     </div>
-</nav>
 
-<!-- MAIN CONTENT -->
-<div class="container container-main">
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    {% block breadcrumbs %}{% endblock %}
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
-    {% block content %}{% endblock %}
+    <!-- Markdown Parser -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-</div>
+    <script>
+        // Theme Toggling Logic
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const html = document.documentElement;
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        html.setAttribute('data-theme', savedTheme);
+        updateIcon(savedTheme);
 
-<!-- PDF.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
 
-<!-- Markdown Parser -->
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateIcon(newTheme);
+        });
 
-</body>
+        function updateIcon(theme) {
+            if (theme === 'dark') {
+                themeIcon.classList.remove('bi-moon-stars');
+                themeIcon.classList.add('bi-sun');
+            } else {
+                themeIcon.classList.remove('bi-sun');
+                themeIcon.classList.add('bi-moon-stars');
+            }
+        }
+    </script>
+
+    </body>
+
 </html>

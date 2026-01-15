@@ -2,197 +2,223 @@
 {% load static %}
 
 {% block breadcrumbs %}
-<nav aria-label="breadcrumb" class="mt-3">
+<nav aria-label="breadcrumb" class="mt-3 animate-appear">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}">Dashboard</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Upload</li>
+        <li class="breadcrumb-item active">Upload</li>
     </ol>
 </nav>
 {% endblock %}
-{% block content %}
-<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
-    <div class="col-12 col-sm-10 col-md-7 col-lg-5">
 
-        <div class="card shadow-lg border-0 rounded-4">
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 75vh;">
+    <div class="col-12 col-md-8 col-lg-6">
+
+        <div class="auth-card animate-scale-up">
             <div class="card-body p-4 p-md-5">
 
-                <!-- Header -->
                 <div class="text-center mb-4">
-                    <div class="fs-2 text-primary mb-2">
-                        <i class="bi bi-cloud-upload"></i>
+                    <div class="upload-icon-pulse mx-auto mb-3">
+                        <i class="bi bi-cloud-arrow-up text-primary"></i>
                     </div>
-                    <h5 class="fw-bold mb-2">Upload Research Paper</h5>
-                    <p class="text-muted small mb-0">
-                        Upload a PDF to analyze AI content and generate a summary
-                    </p>
+                    <h4 class="fw-bold">Upload Research</h4>
+                    <p class="text-muted small">Select a PDF to begin AI-powered analysis</p>
                 </div>
 
-                <!-- Upload Form -->
-                <form method="POST" enctype="multipart/form-data">
+                <form method="POST" enctype="multipart/form-data" id="uploadForm">
                     {% csrf_token %}
 
-                    <!-- File Input -->
                     <div class="mb-4">
-                        <label class="form-label small text-muted">Select PDF file</label>
+                        <label class="drop-container" id="dropcontainer">
+                            <div class="drop-content">
+                                <i class="bi bi-file-earmark-pdf fs-1 text-danger mb-2"></i>
+                                <span class="drop-title">Drop PDF here or click to browse</span>
+                                <span class="drop-subtitle text-muted small">Supports files up to 10MB</span>
+                            </div>
+                            <input type="file" name="file" id="fileInput" accept=".pdf" required onchange="handleFile(this)">
+                        </label>
 
-                       <div class="upload-dropzone rounded-3 text-center">
-                            <i class="bi bi-file-earmark-pdf fs-1 text-danger mb-2"></i>
-                            <p class="small text-muted mb-2">
-                                Only PDF files • Max size 10MB
-                            </p>
-
-                           <input type="file"
-       name="file"
-       id="file"
-       class="d-none"
-       accept=".pdf"
-       required
-       onchange="handleFile(this)">
-
-<button type="button"
-        class="btn btn-outline-primary mt-2"
-        onclick="document.getElementById('file').click()">
-    <i class="bi bi-file-earmark-pdf me-1"></i>
-    Choose PDF File
-</button>
-
-<div id="fileName"
-     class="file-selected mt-3 d-none">
-    <i class="bi bi-check-circle-fill me-2"></i>
-    <span id="fileNameText"></span>
-</div>
-
-
+                        <div id="filePreview" class="file-preview-box d-none mt-3">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <span id="fileNameDisplay" class="text-truncate fw-medium" style="max-width: 200px;"></span>
+                                </div>
+                                <button type="button" class="btn-close small" onclick="resetUpload()"></button>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Actions -->
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary py-2">
-                            Upload & Analyze
-                        </button>
+                    <div id="uploadProgress" class="d-none mb-4">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-primary small fw-bold">Analyzing Document...</span>
+                            <span id="progressPercent" class="text-muted small">0%</span>
+                        </div>
+                        <div class="progress" style="height: 8px; border-radius: 10px;">
+                            <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"></div>
+                        </div>
+                    </div>
 
-                        <a href="{% url 'core:dashboard' %}"
-                           class="btn btn-outline-secondary">
-                            Cancel
+                    <div class="d-grid gap-3">
+                        <button type="submit" class="btn btn-primary py-3 fw-bold" id="submitBtn">
+                            Start Analysis
+                        </button>
+                        <a href="{% url 'core:dashboard' %}" class="btn btn-link text-muted text-decoration-none small">
+                            Return to Dashboard
                         </a>
                     </div>
                 </form>
-
             </div>
         </div>
-
     </div>
 </div>
 
-<script>
-function handleFile(input) {
-    const file = input.files[0];
-    const fileName = document.getElementById("fileName");
-
-    if (!file) {
-        fileName.classList.add("d-none");
-        return;
-    }
-
-    if (file.type !== "application/pdf") {
-        alert("Only PDF files are allowed.");
-        input.value = "";
-        fileName.textContent = "No file selected";
-        return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-        alert("File must be less than 10MB.");
-        input.value = "";
-        fileName.textContent = "No file selected";
-        return;
-    }
-
-    fileName.classList.remove("d-none");
-    document.getElementById("fileNameText").textContent = file.name;
-
-}
-</script>
-
-
 <style>
-/* Upload zone matches login input feel */
-.upload-dropzone {
-    border: 2px dashed #c7d2fe;
-    background-color: #f8fafc;
-    padding: 20px;
-    transition: border-color 0.2s ease, background-color 0.2s ease;
-}
-
-.upload-dropzone:hover {
-    border-color: var(--primary);
-    background-color: #f8fafc; /* same as page background */
-}
-
-
-/* File button consistency */
-input[type="file"]::file-selector-button {
-    background-color: var(--primary);
-    color: #fff;
-    border: none;
-    padding: 6px 14px;
-    border-radius: 6px;
-    margin-right: 10px;
-    cursor: pointer;
-    font-size: 0.9rem;
-}
-
-input[type="file"] {
-    font-size: 0.9rem;
-}
-
-/* CTA hierarchy */
-.btn-primary {
-    font-weight: 600;
-    letter-spacing: 0.3px;
-}
-
-/* Cancel should feel secondary */
-.btn-outline-secondary {
-    opacity: 0.9;
-}
-
-/* Selected file highlight */
-.file-selected {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background: #eef2ff; /* soft indigo */
-    color: var(--primary);
-
-    border: 1px solid #c7d2fe;
-    border-radius: 10px;
-
-    padding: 10px 14px;
-    font-size: 0.9rem;
-    font-weight: 500;
-
-    animation: fadeSlideIn 0.25s ease-out;
-}
-
-.file-selected i {
-    color: #22c55e; /* success green */
-    font-size: 1rem;
-}
-
-/* Subtle entrance animation */
-@keyframes fadeSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-4px);
+    /* Reuse Auth Card Style */
+    .auth-card {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid #e2e8f0;
+        border-radius: 24px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.05);
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+
+    /* Icon Pulse Animation */
+    .upload-icon-pulse {
+        width: 70px;
+        height: 70px;
+        background: var(--primary-soft);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        animation: pulse-soft 2s infinite;
     }
-}
+
+    @keyframes pulse-soft {
+        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); }
+        70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+    }
+
+    /* Modern Dropzone */
+    .drop-container {
+        position: relative;
+        display: flex;
+        gap: 10px;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 200px;
+        padding: 20px;
+        border-radius: 16px;
+        border: 2px dashed #cbd5e1;
+        color: #444;
+        cursor: pointer;
+        transition: all .2s ease-in-out;
+    }
+
+    .drop-container:hover, .drop-container.drag-active {
+        background: #f8fafc;
+        border-color: var(--primary);
+    }
+
+    .drop-title {
+        color: #444;
+        font-size: 1rem;
+        font-weight: 600;
+        display: block;
+    }
+
+    #fileInput {
+        width: 100%;
+        max-width: 100%;
+        color: #444;
+        padding: 5px;
+        background: #fff;
+        border-radius: 10px;
+        border: 1px solid #555;
+        display: none;
+    }
+
+    /* File Preview Box */
+    .file-preview-box {
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 12px 16px;
+        animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-scale-up {
+        animation: scaleUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes scaleUp {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+    }
 </style>
 
+<script>
+    const dropContainer = document.getElementById("dropcontainer");
+    const fileInput = document.getElementById("fileInput");
+    const preview = document.getElementById("filePreview");
+    const fileName = document.getElementById("fileNameDisplay");
+    const form = document.getElementById("uploadForm");
+    const progressSection = document.getElementById("uploadProgress");
+    const progressBar = document.getElementById("progressBar");
+    const progressPercent = document.getElementById("progressPercent");
+
+    // Drag and Drop handlers
+    dropContainer.ondragover = (e) => { e.preventDefault(); dropContainer.classList.add("drag-active"); };
+    dropContainer.ondragleave = () => { dropContainer.classList.remove("drag-active"); };
+    dropContainer.ondrop = (e) => {
+        e.preventDefault();
+        dropContainer.classList.remove("drag-active");
+        fileInput.files = e.dataTransfer.files;
+        handleFile(fileInput);
+    };
+
+    function handleFile(input) {
+        const file = input.files[0];
+        if (file && file.type === "application/pdf") {
+            preview.classList.remove("d-none");
+            fileName.textContent = file.name;
+            dropContainer.classList.add("d-none");
+        } else if (file) {
+            alert("Please upload a valid PDF file.");
+            resetUpload();
+        }
+    }
+
+    function resetUpload() {
+        fileInput.value = "";
+        preview.classList.add("d-none");
+        dropContainer.classList.remove("d-none");
+    }
+
+    // Progress Bar Animation on Submit
+    form.onsubmit = (e) => {
+        progressSection.classList.remove("d-none");
+        document.getElementById("submitBtn").disabled = true;
+        let width = 0;
+        const interval = setInterval(() => {
+            if (width >= 95) {
+                clearInterval(interval);
+            } else {
+                width += Math.random() * 10;
+                if (width > 95) width = 95;
+                progressBar.style.width = width + "%";
+                progressPercent.textContent = Math.round(width) + "%";
+            }
+        }, 300);
+    };
+</script>
 {% endblock %}
